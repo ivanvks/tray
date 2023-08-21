@@ -1,0 +1,66 @@
+#ifndef MYDIALOG_H
+#define MYDIALOG_H
+
+#include <QDialog>
+#include <QTabWidget>
+#include <QTextEdit>
+#include <QLabel>
+
+class MyDialog : public QDialog {
+    Q_OBJECT
+
+public:
+    MyDialog(QWidget *parent = nullptr);
+
+private:
+    QTabWidget *tabWidget;
+};
+
+#endif // MYDIALOG_H
+
+
+#include "mydialog.h"
+#include <QPixmap>
+#include <QPalette>
+#include <QVBoxLayout>
+
+MyDialog::MyDialog(QWidget *parent) : QDialog(parent) {
+    // Создание пиксельной карты для фона
+    QPixmap background(":/path/to/your/image.png");
+
+    // Установка фона через палитру
+    QPalette palette;
+    palette.setBrush(QPalette::Background, background);
+    setPalette(palette);
+
+    // Создание вертикального layout
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    // Добавление логотипа и текста
+    QHBoxLayout *topLayout = new QHBoxLayout;
+    QLabel *logoLabel = new QLabel(this);
+    QPixmap logo(":/path/to/your/logo.png"); // Замените путь на ваш логотип
+    logo = logo.scaled(30, 30, Qt::KeepAspectRatio);
+    logoLabel->setPixmap(logo);
+    topLayout->addWidget(logoLabel);
+
+    QLabel *textLabel = new QLabel("это хорошая программа\nона работает хорошо", this);
+    topLayout->addWidget(textLabel);
+
+    layout->addLayout(topLayout);
+
+    // Создание QTextEdit с вкладками
+    tabWidget = new QTabWidget(this);
+
+    // Вкладка 1
+    QTextEdit *textEdit1 = new QTextEdit("программа", this);
+    tabWidget->addTab(textEdit1, "Вкладка 1");
+
+    // Вкладка 2
+    QTextEdit *textEdit2 = new QTextEdit("программа", this);
+    tabWidget->addTab(textEdit2, "Вкладка 2");
+
+    layout->addWidget(tabWidget);
+
+    setLayout(layout);
+}
