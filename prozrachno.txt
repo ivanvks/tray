@@ -1,0 +1,93 @@
+#include "mydialog.h"
+#include <QPixmap>
+#include <QPalette>
+#include <QVBoxLayout>
+#include <QGraphicsOpacityEffect> // Добавьте это
+
+MyDialog::MyDialog(QWidget *parent) : QDialog(parent) {
+    // Создание пиксельной карты для фона
+    QPixmap background(":/path/to/your/image.png");
+
+    // Установка фона через палитру
+    QPalette palette;
+    palette.setBrush(QPalette::Background, background);
+    setPalette(palette);
+
+    // Создание вертикального layout
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    // Добавление логотипа и текста
+    QHBoxLayout *topLayout = new QHBoxLayout;
+    QLabel *logoLabel = new QLabel(this);
+    QPixmap logo(":/path/to/your/logo.png"); // Замените путь на ваш логотип
+    logo = logo.scaled(30, 30, Qt::KeepAspectRatio);
+    logoLabel->setPixmap(logo);
+    topLayout->addWidget(logoLabel);
+
+    QLabel *textLabel = new QLabel("это хорошая программа\nона работает хорошо", this);
+    topLayout->addWidget(textLabel);
+
+    layout->addLayout(topLayout);
+
+    // Создание QTextEdit с вкладками
+    tabWidget = new QTabWidget(this);
+
+    // Вкладка 1
+    QTextEdit *textEdit1 = new QTextEdit("программа", this);
+
+    // Создание QGraphicsOpacityEffect и применение к QTextEdit
+    QGraphicsOpacityEffect *opacityEffect = new QGraphicsOpacityEffect(this);
+    opacityEffect->setOpacity(0.7); // Установите желаемую прозрачность
+    textEdit1->setGraphicsEffect(opacityEffect);
+
+    tabWidget->addTab(textEdit1, "Вкладка 1");
+
+    // Вкладка 2
+    QTextEdit *textEdit2 = new QTextEdit("программа", this);
+    tabWidget->addTab(textEdit2, "Вкладка 2");
+
+    layout->addWidget(tabWidget);
+
+    setLayout(layout);
+}
+
+ili 
+
+#include "mydialog.h"
+#include <QPixmap>
+#include <QGraphicsView>
+#include <QGraphicsTextItem>
+#include <QGraphicsOpacityEffect>
+
+MyDialog::MyDialog(QWidget *parent) : QDialog(parent) {
+    // Создание пиксельной карты для фона
+    QPixmap background(":/path/to/your/image.png");
+
+    // Создание QGraphicsView
+    QGraphicsView *view = new QGraphicsView(this);
+    QGraphicsScene *scene = new QGraphicsScene(this);
+    view->setScene(scene);
+    view->setStyleSheet("background: transparent"); // Полупрозрачный фон
+
+    // Добавление фоновой картинки
+    QGraphicsPixmapItem *backgroundItem = scene->addPixmap(background);
+    backgroundItem->setOpacity(0.5); // Прозрачность фона
+
+    // Добавление текста
+    QGraphicsTextItem *textItem = new QGraphicsTextItem("это хорошая программа\nона работает хорошо");
+    QFont font;
+    font.setBold(true);
+    textItem->setFont(font);
+    scene->addItem(textItem);
+
+    // Размещение элементов
+    backgroundItem->setPos(0, 0); // Положение фона
+    textItem->setPos(30, 30); // Положение текста
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(view);
+    setLayout(layout);
+}
+
+
+
