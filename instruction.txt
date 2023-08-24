@@ -1,0 +1,116 @@
+    В классе CQsqlDbase создайте сигнал, который будет передавать информацию об ошибке, например:
+
+cpp
+
+class CQsqlDbase : public QObject {
+    Q_OBJECT
+public:
+    // ...
+signals:
+    void errorOccurred(const QString& errorCode, const QString& errorMessage);
+};
+
+    В методе lastError() класса CQsqlDbase после обнаружения ошибки вызовите этот сигнал:
+
+cpp
+
+void CQsqlDbase::lastError() {
+    QString errorCode = /* получите код ошибки */;
+    QString errorMessage = /* получите текст ошибки */;
+    
+    emit errorOccurred(errorCode, errorMessage);
+}
+
+    В классе Kernel создайте слот для обработки сигнала об ошибке:
+
+cpp
+
+class Kernel : public QObject {
+    Q_OBJECT
+public slots:
+    void handleDatabaseError(const QString& errorCode, const QString& errorMessage) {
+        // Передайте информацию об ошибке в функцию infMSG() класса SystemTrayIcon
+        systemTrayIcon->infMSG(errorCode, errorMessage);
+    }
+};
+
+    Подключите сигнал и слот в классе Kernel:
+
+cpp
+
+connect(mCsqlDb, &CQsqlDbase::errorOccurred, this, &Kernel::handleDatabaseError);
+
+    В классе SystemTrayIcon создайте функцию infMSG():
+
+cpp
+
+class SystemTrayIcon : public QObject {
+    Q_OBJECT
+public slots:
+    void infMSG(const QString& errorCode, const QString& errorMessage) {
+        // Отобразите сообщение с кодом и текстом ошибки в трее
+    }
+};
+
+Таким образом, когда происходит ошибка подключения к базе данных в классе CQsqlDbase, будет сгенерирован сигнал errorOccurred, который будет перехвачен в слоте handleDatabaseError класса Kernel. Затем информация об ошибке будет передана функции infMSG() класса SystemTrayIcon, и сообщение с кодом и текстом ошибки будет отображено в трее.
+
+
+V2.
+
+    В классе CSqlDatabase создать сигнал, который будет отправлять текст ошибки:
+
+cpp
+
+class CSqlDatabase : public QObject
+{
+    Q_OBJECT
+
+signals:
+    void errorOccurred(const QString &errorText);
+
+public:
+    QString lastErrorA()
+    {
+        QString errorText = mADataBase_.lastError().text();
+        if (!errorText.isEmpty()) emit errorOccurred(errorText);
+        return errorText;
+    }
+};
+
+    В классе Kernel создать слот, который будет принимать текст ошибки и передавать его дальше:
+
+cpp
+
+class Kernel : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    void handleError(const QString &errorText)
+    {
+        mTrayIcon.infMSG(errorText);
+    }
+
+private:
+    CSqlDatabase *mCsqlDb;
+    SystemTrayIcon mTrayIcon;
+
+    // ... остальной код класса
+};
+
+    Соединить сигнал из класса CSqlDatabase со слотом в классе Kernel в конструкторе класса Kernel:
+
+cpp
+
+Kernel::Kernel()
+{
+    mCsqlDb = new CSqlDatabase;
+    connect(mCsqlDb, SIGNAL(errorOccurred(QString)), this, SLOT(handleError(QString)));
+
+    // ... остальной код конструктора
+}
+
+    Когда в методе lastErrorA класса CSqlDatabase возникает ошибка, сигнал errorOccurred будет отправлен, и слот handleError класса Kernel получит текст ошибки и передаст его в функцию infMSG класса SystemTrayIcon.
+
+Таким образом, можно передавать текст ошибки между классами, не предоставляя доступ к ним напрямую.
+
